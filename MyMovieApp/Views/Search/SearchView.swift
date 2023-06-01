@@ -16,6 +16,8 @@ struct SearchView: View {
     @State var dislikeMovie: [Movie] = []
     @State private var searchText = ""
     
+    
+    
     let movieStore = MovieStore()
     let remoteMovieLoader = RemoteMoviesLoader()
     

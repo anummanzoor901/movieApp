@@ -20,7 +20,8 @@ struct FavouriteMovieList: View {
     @State private var isMovieDetailPresented = false
     
     @State private var searchText = ""
-    @State var favoriteMovies: [Movie]
+    @State var favoriteMovies: [Movie] = []
+    let movieStore = MovieStore()
     
     var viewContext: NSManagedObjectContext = PersistenceController.shared.context
     
@@ -66,25 +67,7 @@ struct FavouriteMovieList: View {
             }
         }
         .onAppear {
-            loadFavoriteMovies()
-        }
-    }
-    private func loadFavoriteMovies() {
-        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
-        
-        do {
-            let fetchedMovies = try viewContext.fetch(fetchRequest)
-            favoriteMovies = fetchedMovies.map { movieEntity in
-                Movie(name: movieEntity.name ?? "",
-                      rating: movieEntity.rating,
-                      imageName: movieEntity.imageName,
-                      description: movieEntity.descriptionText ?? "",
-                      isFavorite: true,
-                      isDisliked: false,
-                      imageData: movieEntity.imageData)
-            }
-        } catch {
-            print("Failed to fetch favorite movies: \(error)")
+           favoriteMovies = movieStore.fetchFavoriteMovies()
         }
     }
     

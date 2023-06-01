@@ -77,6 +77,30 @@ class MovieStore {
         saveChanges()
     }
     
+    func fetchFavoriteMovies() -> [Movie] {
+        
+        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
+        var favoriteMovies:[Movie] = []
+        
+        do {
+            let fetchedMovies = try viewContext.fetch(fetchRequest)
+            favoriteMovies = fetchedMovies.map { movieEntity in
+                Movie(name: movieEntity.name ?? "",
+                      rating: movieEntity.rating,
+                      imageName: movieEntity.imageName,
+                      description: movieEntity.descriptionText ?? "",
+                      isFavorite: true,
+                      isDisliked: false,
+                      imageData: movieEntity.imageData)
+            }
+            
+        } catch {
+            print("Failed to fetch favorite movies: \(error)")
+        }
+        
+        return favoriteMovies
+    }
+    
     
     private func saveChanges() {
         do {
