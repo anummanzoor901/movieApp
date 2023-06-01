@@ -11,15 +11,15 @@ import CoreData
 struct FavouriteMovieListItem: View {
     
     var movie: Movie
-    @Binding var favoriteMovies: [Movie]
-    
+    var favouriteAction:(() -> Void)?
+
     var viewContext: NSManagedObjectContext = PersistenceController.shared.context
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 Text(movie.name)
-                    .font(/*@START_MENU_TOKEN@*/.headline/*@END_MENU_TOKEN@*/)
+                    .font(.headline)
                     .fontWeight(.semibold)
                 Spacer()
                 Image(systemName: "heart.fill")
@@ -27,9 +27,8 @@ struct FavouriteMovieListItem: View {
                     .foregroundColor(.red)
                     .frame(width: 25, height: 22)
                     .onTapGesture {
-                        removeMovie()
+                        favouriteAction?()
                     }
-                
             }
             
             if let imageURL = movie.imageURL {
@@ -42,7 +41,12 @@ struct FavouriteMovieListItem: View {
                                     .padding(.top, 5)
                             } placeholder: {
                                 // Placeholder image or activity indicator while loading
-                                ProgressView()
+                                Image("godfather")
+                                    .resizable()
+                                    .cornerRadius(10.0)
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 5)
                             }
                         }
             
@@ -60,52 +64,13 @@ struct FavouriteMovieListItem: View {
         .listRowSeparator(.hidden)
         
     }
-    private func removeMovie() {
-        if let index = favoriteMovies.firstIndex(of: movie) {
-            deleteMovies(at: IndexSet(integer: index))
-            favoriteMovies.remove(at: index)
-        }
-    }
-    private func deleteMovies(at offsets: IndexSet) {
-        if let movieEntity = fetchMovieEntity(for: movie) {
-            viewContext.delete(movieEntity)
-        }
-        saveChanges()
-    }
-    
-    private func fetchMovieEntity(for movie: Movie) -> MovieEntity? {
-        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", movie.name)
-        
-        do {
-            let fetchedMovies = try viewContext.fetch(fetchRequest)
-            return fetchedMovies.first
-        } catch {
-            print("Failed to fetch movie entity: \(error)")
-        }
-        
-        return nil
-    }
-    
-    private func saveChanges() {
-        do {
-            try viewContext.save()
-        } catch {
-            print("Failed to save changes: \(error)")
-        }
-    }
+
 }
 
-//struct FavouriteMovieListItem_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let movies: [Movie] = getMovies()
-//        let favoriteMovies = Binding<[Movie]>(
-//            get: { movies.filter { $0.isFavorite ?? false } },
-//            set: { _ in }
-//        )
-//
-//        return SearchListItem(movie: .constant(movies[0]), movies: .constant(movies), favoriteMovies: favoriteMovies)
-//            .padding()
-//            .previewDisplayName("Default preview 2")
-//    }
-//}
+struct FavouriteMovieListItem_Previews: PreviewProvider {
+    static var previews: some View {
+        return FavouriteMovieListItem(movie: Movie(name: "Test Movie", rating: 5.0, imageName: "", description: "Test Description"))
+            .padding()
+            .previewDisplayName("Default preview 2")
+    }
+}

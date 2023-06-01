@@ -21,8 +21,6 @@ extension MovieEntity {
     @NSManaged public var rating: Double
     @NSManaged public var descriptionText: String?
     @NSManaged public var imageData: Data?
-    @NSManaged public var isFavorite: Bool
-    @NSManaged public var isDisliked: Bool
     @NSManaged public var imageName: String?
 
 }

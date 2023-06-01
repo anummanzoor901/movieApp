@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import CoreData
 
 struct SearchView: View {
     
@@ -14,12 +13,11 @@ struct SearchView: View {
     @Binding var favoriteMovies: [Movie] // Add favoriteMovies as a binding
     @State private var isMovieDetailPresented = false
     @State private var searchResults: [Movie] = []
-    @Binding var dislikeMovie: [Movie]
+    @State var dislikeMovie: [Movie] = []
     @State private var searchText = ""
     
-    let remoteMoviesLoader = RemoteMoviesLoader()
-    
-    @Environment(\.managedObjectContext) private var viewContext
+    let movieStore = MovieStore()
+    let remoteMovieLoader = RemoteMoviesLoader()
     
     @State private var showSearchResults = false
     
@@ -56,17 +54,26 @@ struct SearchView: View {
                     Spacer()
                 } else {
                     List {
-                        ForEach($searchResults, id: \.self) { movie in
+                        ForEach(searchResults, id: \.self) { movie in
                             
-                            SearchListItem(movie: movie, movies: $searchResults, favoriteMovies: $favoriteMovies, dislikeMovie: $dislikeMovie)
-                                .onTapGesture {
-                                    isMovieDetailPresented = true
-                                    
+                            SearchListItem(movie: movie, disLikeAction: {
+                                addDislike(movie: movie)
+                            }, favouriteAction: {
+                                if movie.isFavorite == true {
+                                    removefavoriteMovie(movie: movie)
                                 }
-                                .sheet(isPresented: $isMovieDetailPresented) {
-                                    MovieDetailView(content: SearchListItem(movie: movie, movies: $searchResults, favoriteMovies: $favoriteMovies, dislikeMovie: $dislikeMovie))
+                                else {
+                                    addFavourite(movie: movie)
                                 }
-                                .listRowSeparator(.hidden)
+                            })
+                            .onTapGesture {
+                                isMovieDetailPresented = true
+                                
+                            }
+                            .sheet(isPresented: $isMovieDetailPresented) {
+                                MovieDetailView(content: SearchListItem(movie: movie))
+                            }
+                            .listRowSeparator(.hidden)
                             
                         }
                     }
@@ -86,26 +93,44 @@ struct SearchView: View {
         
     }
     
+    func addDislike(movie:Movie) {
+        movieStore.saveDisliked(movie: movie)
+        dislikeMovie.append(movie)
+        // Remove the disliked movie from the search results
+        if let index = searchResults.firstIndex(of: movie) {
+            searchResults.remove(at: index)
+        }
+    }
+    
+    private func removefavoriteMovie(movie: Movie) {
+        movieStore.delete(movie: movie)
+        if let index = searchResults.firstIndex(of: movie) {
+            favoriteMovies.remove(at: index)
+            searchResults[index].isFavorite = false
+        }
+    }
+    
+    func addFavourite(movie: Movie) {
+        movieStore.saveFavourite(movie: movie)
+        favoriteMovies.append(movie)
+        if let index = searchResults.firstIndex(of: movie) {
+            searchResults[index].isFavorite = true
+        }
+    }
+
+    
     private func searchMovies() {
-        
-        remoteMoviesLoader.loadMovies(from: searchText, completion: { movies in
-            var filteredResults = movies
-            
-            // Filter out disliked movies
-            filteredResults = filteredResults.filter { movie in
+        remoteMovieLoader.loadMovies(from: searchText, completion: { movies in
+            var filteredResults = movies.filter { movie in
                 return !dislikeMovie.contains { $0.name == movie.name }
             }
-            
-          
             filteredResults = filteredResults.map { movie in
                 var updatedMovie = movie
                 updatedMovie.isFavorite = isFavourite(movie: movie)
                 return updatedMovie
             }
-            
             searchResults = filteredResults
         })
-      
     }
     
     private func isFavourite(movie:Movie) -> Bool {
@@ -115,41 +140,12 @@ struct SearchView: View {
         return false
     }
     
-    private func fetchMovieEntity(for movie: Movie) -> MovieEntity? {
-        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", movie.name)
-        
-        do {
-            let fetchedMovies = try viewContext.fetch(fetchRequest)
-            return fetchedMovies.first
-        } catch {
-            print("Failed to fetch movie entity: \(error)")
-        }
-        
-        return nil
-    }
+    
     private func loadDislikedMovies() {
-        let fetchRequest: NSFetchRequest<DislikeEntity> = DislikeEntity.fetchRequest()
-        
-        do {
-            let fetchedMovies:[DislikeEntity] = try viewContext.fetch(fetchRequest)
-            dislikeMovie = fetchedMovies.map { dislikeEntity in
-                Movie(name: dislikeEntity.name ?? "",
-                      rating: dislikeEntity.rating,
-                      imageName: dislikeEntity.imageName,
-                      description: dislikeEntity.descriptionText ?? "",
-                      isFavorite: dislikeEntity.isFavorite,
-                      isDisliked: dislikeEntity.isDisliked,
-                      imageData: dislikeEntity.imageData)
-            }
-        } catch {
-            print("Failed to fetch disliked movies: \(error)")
-        }
+        dislikeMovie = movieStore.fetchDisliked() ?? []
     }
-
 }
 
 struct MovieResponse: Codable {
     let results: [Movie]
 }
-

@@ -1,30 +1,29 @@
 //
-//  ContentView.swift
-//  MyMovieApp
-//
-//  Created by Mehtab on 09/05/2023.
-//
+/*
+ ||||||*** IMPROVEMENTS ***||||||
+ 1 - Remove favourite action logic from favourite Item
+ 2 - Remove dislikeMovie array from FavouriteMovieList because it's of no use in this view
+ 3 - Remove passing viewContext as environment variable from FavouriteMovieList to SearchView '.environment(\.managedObjectContext, viewContext)'
+ 4 - Remove Environment ViewContext from SearchView
+ 5 - Fix preview for FavouriteListItem
+ */
 
-//  ContentView.swift
-//  MyMovieApp
-//
-//  Created by Mehtab on 09/05/2023.
-//
+
+
 
 import SwiftUI
 import CoreData
 
 struct FavouriteMovieList: View {
+    
     @State private var isSearchViewPresented = false
     @State private var isMovieDetailPresented = false
-    @State private var searchText = ""
-    @State var favoriteMovies: [Movie] // Add favoriteMovies property
-    @State var dislikeMovie: [Movie]
     
- //   @Environment(\.managedObjectContext) private var viewContext
+    @State private var searchText = ""
+    @State var favoriteMovies: [Movie]
+    
     var viewContext: NSManagedObjectContext = PersistenceController.shared.context
-   // @Environment(\.scenePhase) private var scenePhase
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -32,7 +31,7 @@ struct FavouriteMovieList: View {
                     Text("Favourites")
                         .font(.headline)
                         .foregroundColor(.black)
-
+                    
                     HStack {
                         Spacer()
                         Button(action: {
@@ -45,29 +44,30 @@ struct FavouriteMovieList: View {
                                 .padding(.trailing, 16)
                         }
                         .sheet(isPresented: $isSearchViewPresented) {
-                            SearchView(isSearchViewPresented: $isSearchViewPresented, favoriteMovies: $favoriteMovies, dislikeMovie: $dislikeMovie) // Pass favoriteMovies as a binding
-                                .environment(\.managedObjectContext, viewContext)
+                            SearchView(isSearchViewPresented: $isSearchViewPresented, favoriteMovies: $favoriteMovies)
                         }
                     }
                 }
                 .frame(height: 40)
-
+                
                 List(favoriteMovies, id: \.self) { movie in // Display favoriteMovies instead of movies
-                    FavouriteMovieListItem(movie: movie, favoriteMovies: $favoriteMovies) // Pass favoriteMovies as a binding
-                        .onTapGesture {
-                            isMovieDetailPresented = true
-                        }
-                        .sheet(isPresented: $isMovieDetailPresented) {
-                            MovieDetailView(content: FavouriteMovieListItem(movie: movie, favoriteMovies: $favoriteMovies)) // Pass favoriteMovies as a binding
-                        }
-                        .listRowSeparator(.hidden)
+                    FavouriteMovieListItem(movie: movie, favouriteAction: {
+                        removeFavourite(movie: movie)
+                    }) // Pass favoriteMovies as a binding
+                    .onTapGesture {
+                        isMovieDetailPresented = true
+                    }
+                    .sheet(isPresented: $isMovieDetailPresented) {
+                        MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding
+                    }
+                    .listRowSeparator(.hidden)
                 }
                 .listStyle(PlainListStyle())
             }
         }
         .onAppear {
-                    loadFavoriteMovies()
-                }
+            loadFavoriteMovies()
+        }
     }
     private func loadFavoriteMovies() {
         let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
@@ -79,21 +79,56 @@ struct FavouriteMovieList: View {
                       rating: movieEntity.rating,
                       imageName: movieEntity.imageName,
                       description: movieEntity.descriptionText ?? "",
-                      isFavorite: movieEntity.isFavorite,
-                      isDisliked: movieEntity.isDisliked,
+                      isFavorite: true,
+                      isDisliked: false,
                       imageData: movieEntity.imageData)
             }
         } catch {
             print("Failed to fetch favorite movies: \(error)")
         }
     }
+    
+    private func removeFavourite(movie:Movie) {
+        if let index = favoriteMovies.firstIndex(of: movie) {
+            removeFromLocal(movie: movie)
+            favoriteMovies.remove(at: index)
+        }
+    }
+    private func removeFromLocal(movie:Movie) {
+        if let movieEntity = fetchMovieEntity(for: movie) {
+            viewContext.delete(movieEntity)
+        }
+        saveChanges()
+    }
+    
+    private func fetchMovieEntity(for movie: Movie) -> MovieEntity? {
+        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", movie.name)
+        
+        do {
+            let fetchedMovies = try viewContext.fetch(fetchRequest)
+            return fetchedMovies.first
+        } catch {
+            print("Failed to fetch movie entity: \(error)")
+        }
+        
+        return nil
+    }
+    
+    private func saveChanges() {
+        do {
+            try viewContext.save()
+        } catch {
+            print("Failed to save changes: \(error)")
+        }
+    }
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        FavouriteMovieList(favoriteMovies: getMovies())
-//    }
-//}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        FavouriteMovieList(favoriteMovies: getMovies())
+    }
+}
 
 
 
@@ -106,15 +141,5 @@ func getMovies() -> [Movie] {
         Movie(name: "Pulp Fiction", rating: 8, imageName: "pulpfiction", description: "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.", isFavorite: false, isDisliked: false),
         Movie(name: "The Lord of the Rings: The Return of the King", rating: 9, imageName: "lotr", description: "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.", isFavorite: false, isDisliked: false)
     ]
-    return movies
-}
-
-func getDislikedMovies() -> [Movie] {
-    let movies = [
-        Movie(name: "The Godfather", rating: 9, imageName: "godfather", description: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son. The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.", isFavorite: false
-              , isDisliked: false),
-        Movie(name: "The Shawshank Redemption", rating: 9, imageName: "shawshank", description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.", isFavorite: false, isDisliked: false)
-    ]
-    
     return movies
 }

@@ -20,8 +20,6 @@ extension DislikeEntity {
     @NSManaged public var id: UUID?
     @NSManaged public var imageData: Data?
     @NSManaged public var imageName: String?
-    @NSManaged public var isDisliked: Bool
-    @NSManaged public var isFavorite: Bool
     @NSManaged public var name: String?
     @NSManaged public var rating: Double
 
