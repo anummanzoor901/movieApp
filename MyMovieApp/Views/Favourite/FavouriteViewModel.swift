@@ -7,6 +7,24 @@
 
 import Foundation
 
-class FavouriteViewModel {
+class FavouriteViewModel: ObservableObject {
     
+    @Published var isSearchViewPresented = false
+    @Published var isMovieDetailPresented = false
+    
+    var searchText = ""
+    @Published var favoriteMovies: [Movie] = []
+    let movieStore = MovieStore()
+    
+    func fetchFavouriteMovies() {
+        favoriteMovies = movieStore.fetchFavoriteMovies()
+        
+    }
+    
+    func removeFavourite(movie: Movie) {
+        if let index = favoriteMovies.firstIndex(of: movie) {
+            movieStore.delete(movie: movie)
+            favoriteMovies.remove(at: index)
+        }
+    }
 }

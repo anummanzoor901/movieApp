@@ -14,14 +14,8 @@
 import SwiftUI
 
 struct FavouriteMovieList: View {
-    
-    @State private var isSearchViewPresented = false
-    @State private var isMovieDetailPresented = false
-    
-    @State private var searchText = ""
-    @State var favoriteMovies: [Movie] = []
-    let movieStore = MovieStore()
-    
+
+   @ObservedObject var favouriteViewModel = FavouriteViewModel()
     
     var body: some View {
         NavigationView {
@@ -34,7 +28,7 @@ struct FavouriteMovieList: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            isSearchViewPresented = true
+                            favouriteViewModel.isSearchViewPresented = true
                         }) {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
@@ -42,21 +36,21 @@ struct FavouriteMovieList: View {
                                 .frame(width: 19, height: 19)
                                 .padding(.trailing, 16)
                         }
-                        .sheet(isPresented: $isSearchViewPresented) {
-                            SearchView(isSearchViewPresented: $isSearchViewPresented, favoriteMovies: $favoriteMovies)
+                        .sheet(isPresented: $favouriteViewModel.isSearchViewPresented) {
+                            SearchView(isSearchViewPresented: $favouriteViewModel.isSearchViewPresented, favoriteMovies: $favouriteViewModel.favoriteMovies)
                         }
                     }
                 }
                 .frame(height: 40)
                 
-                List(favoriteMovies, id: \.self) { movie in // Display favoriteMovies instead of movies
+                List(favouriteViewModel.favoriteMovies, id: \.self) { movie in // Display favoriteMovies instead of movies
                     FavouriteMovieListItem(movie: movie, favouriteAction: {
-                        removeFavourite(movie: movie)
+                        favouriteViewModel.removeFavourite(movie: movie)
                     }) // Pass favoriteMovies as a binding
                     .onTapGesture {
-                        isMovieDetailPresented = true
+                        favouriteViewModel.isMovieDetailPresented = true
                     }
-                    .sheet(isPresented: $isMovieDetailPresented) {
+                    .sheet(isPresented: $favouriteViewModel.isMovieDetailPresented) {
                         MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding
                     }
                     .listRowSeparator(.hidden)
@@ -65,21 +59,14 @@ struct FavouriteMovieList: View {
             }
         }
         .onAppear {
-           favoriteMovies = movieStore.fetchFavoriteMovies()
-        }
-    }
-    
-    private func removeFavourite(movie:Movie) {
-        if let index = favoriteMovies.firstIndex(of: movie) {
-            movieStore.delete(movie: movie)
-            favoriteMovies.remove(at: index)
+            favouriteViewModel.fetchFavouriteMovies()
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        FavouriteMovieList(favoriteMovies: getMovies())
+        FavouriteMovieList()
     }
 }
 
