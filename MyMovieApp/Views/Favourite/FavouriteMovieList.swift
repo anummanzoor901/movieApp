@@ -12,7 +12,6 @@
 
 
 import SwiftUI
-import CoreData
 
 struct FavouriteMovieList: View {
     
@@ -23,7 +22,6 @@ struct FavouriteMovieList: View {
     @State var favoriteMovies: [Movie] = []
     let movieStore = MovieStore()
     
-    var viewContext: NSManagedObjectContext = PersistenceController.shared.context
     
     var body: some View {
         NavigationView {
@@ -73,36 +71,8 @@ struct FavouriteMovieList: View {
     
     private func removeFavourite(movie:Movie) {
         if let index = favoriteMovies.firstIndex(of: movie) {
-            removeFromLocal(movie: movie)
+            movieStore.delete(movie: movie)
             favoriteMovies.remove(at: index)
-        }
-    }
-    private func removeFromLocal(movie:Movie) {
-        if let movieEntity = fetchMovieEntity(for: movie) {
-            viewContext.delete(movieEntity)
-        }
-        saveChanges()
-    }
-    
-    private func fetchMovieEntity(for movie: Movie) -> MovieEntity? {
-        let fetchRequest: NSFetchRequest<MovieEntity> = MovieEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", movie.name)
-        
-        do {
-            let fetchedMovies = try viewContext.fetch(fetchRequest)
-            return fetchedMovies.first
-        } catch {
-            print("Failed to fetch movie entity: \(error)")
-        }
-        
-        return nil
-    }
-    
-    private func saveChanges() {
-        do {
-            try viewContext.save()
-        } catch {
-            print("Failed to save changes: \(error)")
         }
     }
 }
