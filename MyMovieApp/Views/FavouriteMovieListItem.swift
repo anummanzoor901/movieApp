@@ -6,14 +6,11 @@
 //
 
 import SwiftUI
-import CoreData
 
 struct FavouriteMovieListItem: View {
     
     var movie: Movie
     var favouriteAction:(() -> Void)?
-
-    var viewContext: NSManagedObjectContext = PersistenceController.shared.context
     
     var body: some View {
         VStack(alignment: .leading) {
