@@ -16,6 +16,8 @@ import SwiftUI
 struct FavouriteMovieList: View {
 
    @ObservedObject var favouriteViewModel = FavouriteViewModel()
+    @StateObject private var searchViewModel = SearchViewModel() // Create a new instance of SearchViewModel.@StateObject creates a new instance of the observed object only once and preserves its state across view updates.
+
     
     var body: some View {
         NavigationView {
@@ -37,7 +39,7 @@ struct FavouriteMovieList: View {
                                 .padding(.trailing, 16)
                         }
                         .sheet(isPresented: $favouriteViewModel.isSearchViewPresented) {
-                            SearchView(isSearchViewPresented: $favouriteViewModel.isSearchViewPresented, favoriteMovies: $favouriteViewModel.favoriteMovies)
+                            SearchView(searchViewModel: searchViewModel, favouriteViewModel: favouriteViewModel)
                         }
                     }
                 }
@@ -53,6 +55,7 @@ struct FavouriteMovieList: View {
                     .sheet(isPresented: $favouriteViewModel.isMovieDetailPresented) {
                         MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding
                     }
+                    
                     .listRowSeparator(.hidden)
                 }
                 .listStyle(PlainListStyle())
