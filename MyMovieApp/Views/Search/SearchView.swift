@@ -35,7 +35,7 @@ struct SearchView: View {
                     }
                 }
                 .padding()
-                
+                // TO-DO
                 if searchViewModel.searchResults.isEmpty {
                     Spacer()
                     Text("No results found")
@@ -49,6 +49,7 @@ struct SearchView: View {
                             SearchListItem(movie: movie, disLikeAction: {
                                 searchViewModel.addDislike(movie: movie)
                             }, favouriteAction: {
+                                //TO-DO
                                 if movie.isFavorite == true {
                                     searchViewModel.removefavoriteMovie(movie: movie)
                                 }
@@ -57,7 +58,7 @@ struct SearchView: View {
                                 }
                             })
                             .onTapGesture {
-                                searchViewModel.isMovieDetailPresented = true
+                                searchViewModel.presentDetailView()
                                 
                             }
                             .sheet(isPresented: $searchViewModel.isMovieDetailPresented) {

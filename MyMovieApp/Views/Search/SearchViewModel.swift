@@ -89,4 +89,8 @@ class SearchViewModel: ObservableObject {
     func cancelSearch() {
         favouriteViewModel.isSearchViewPresented = false
     }
+    
+    func presentDetailView() {
+        isMovieDetailPresented = true
+    }
 }
