@@ -13,7 +13,7 @@ struct MyMovieAppApp: App {
         
     var body: some Scene {
         WindowGroup {
-            FavouriteMovieList(favouriteViewModel: FavouriteViewModel())
+            FavouriteMovieList(favouriteViewModel: FavouriteViewModel(isSearchViewPresented: false, isMovieDetailPresented: false, searchText: "", favoriteMovies: [], movieStore: MovieStore()))
         }
     }
 }

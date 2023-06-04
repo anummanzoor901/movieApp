@@ -71,7 +71,7 @@ struct FavouriteMovieList: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        FavouriteMovieList(favouriteViewModel: FavouriteViewModel())
+        FavouriteMovieList(favouriteViewModel: FavouriteViewModel(isSearchViewPresented: false, isMovieDetailPresented: false, searchText: "", favoriteMovies: [], movieStore: MovieStore()))
     }
 }
 
