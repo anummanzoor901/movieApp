@@ -13,7 +13,7 @@ class SearchViewModel: ObservableObject {
     var movieStore = MovieStore()
     var remoteMovieLoader = RemoteMoviesLoader()
     
-    var favouriteViewModel:FavouriteViewModel!
+    var favouriteViewModel:FavouriteViewModel
     
     @Published var isSearchViewPresented = false
     @Published var isMovieDetailPresented = false
@@ -21,6 +21,11 @@ class SearchViewModel: ObservableObject {
     @Published var searchResults: [Movie] = []
     
     @Published var searchText = ""
+    
+    init(favouriteViewModel: FavouriteViewModel) {
+        self.favouriteViewModel = favouriteViewModel
+    }
+    
     
     func addDislike(movie:Movie) {
         movieStore.saveDisliked(movie: movie)

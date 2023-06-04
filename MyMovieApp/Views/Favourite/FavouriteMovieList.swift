@@ -39,7 +39,7 @@ struct FavouriteMovieList: View {
                         .sheet(isPresented: $favouriteViewModel.isSearchViewPresented, onDismiss: {
                             favouriteViewModel.fetchFavouriteMovies()
                         }) {
-                            SearchView(searchViewModel: getSearchViewModel())
+                            SearchView(searchViewModel: SearchViewModel(favouriteViewModel: favouriteViewModel))
                         }
                     }
                 }
@@ -66,12 +66,7 @@ struct FavouriteMovieList: View {
             }
         }
     }
-    
-    func getSearchViewModel() -> SearchViewModel {
-        let searchViewModel = SearchViewModel()
-        searchViewModel.favouriteViewModel = favouriteViewModel // property injection
-        return searchViewModel
-    }
+   
 }
 
 struct ContentView_Previews: PreviewProvider {
