@@ -16,7 +16,14 @@ import SwiftUI
 struct FavouriteMovieList: View {
 
    @ObservedObject var favouriteViewModel = FavouriteViewModel()
-    @StateObject private var searchViewModel = SearchViewModel() // Create a new instance of SearchViewModel.@StateObject creates a new instance of the observed object only once and preserves its state across view updates.
+    
+    
+    
+    // creating this object only to pass next view, it's not needed in this view.
+    // We should not dependent on objects which are not needed.
+    // Try to dependent on less objects, only the mandatory ones
+    // SO WILL TRY TO ELEMENATE IT FROM HERE
+    @StateObject private var searchViewModel = SearchViewModel()
 
     
     var body: some View {
@@ -30,7 +37,7 @@ struct FavouriteMovieList: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            favouriteViewModel.isSearchViewPresented = true
+                            favouriteViewModel.presentSearchView()
                         }) {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
@@ -50,7 +57,7 @@ struct FavouriteMovieList: View {
                         favouriteViewModel.removeFavourite(movie: movie)
                     }) // Pass favoriteMovies as a binding
                     .onTapGesture {
-                        favouriteViewModel.isMovieDetailPresented = true
+                        favouriteViewModel.presentDetailView()
                     }
                     .sheet(isPresented: $favouriteViewModel.isMovieDetailPresented) {
                         MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding

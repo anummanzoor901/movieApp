@@ -27,4 +27,12 @@ class FavouriteViewModel: ObservableObject {
             favoriteMovies.remove(at: index)
         }
     }
+    
+    func presentSearchView() {
+        isSearchViewPresented = true
+    }
+    
+    func presentDetailView() {
+        isMovieDetailPresented = true
+    }
 }
