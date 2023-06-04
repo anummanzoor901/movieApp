@@ -13,10 +13,6 @@ class SearchViewModel: ObservableObject {
     var movieStore = MovieStore()
     var remoteMovieLoader = RemoteMoviesLoader()
     
-    private var dislikeMovie: [Movie] = []
-    
- //   private var favoriteMovies: [Movie] = []
-    
     @Published var isSearchViewPresented = false
     @Published var isMovieDetailPresented = false
     
@@ -26,7 +22,6 @@ class SearchViewModel: ObservableObject {
     
     func addDislike(movie:Movie) {
         movieStore.saveDisliked(movie: movie)
-        dislikeMovie.append(movie)
         // Remove the disliked movie from the search results
         if let index = searchResults.firstIndex(of: movie) {
             searchResults.remove(at: index)
@@ -50,14 +45,25 @@ class SearchViewModel: ObservableObject {
     }
 
     func searchMovies() {
+    
         remoteMovieLoader.loadMovies(from: searchText, completion: { movies in
-            var filteredResults = movies.filter { movie in
-                return !self.dislikeMovie.contains { $0.name == movie.name }
+            
+            var filteredResults = movies
+            
+            if let disliked = self.movieStore.fetchDisliked() {
+                filteredResults = movies.filter { movie in
+                    return !disliked.contains(movie)
+                }
             }
-            filteredResults = filteredResults.map { movie in
-                var updatedMovie = movie
-                updatedMovie.isFavorite = self.movieStore.fetchFavourite(by: movie.name) != nil
-                return updatedMovie
+            
+           let favourites = self.movieStore.fetchFavoriteMovies()
+            
+            if favourites.count > 0 {
+                filteredResults = filteredResults.map { movie in
+                    var updatedMovie = movie
+                    updatedMovie.isFavorite = favourites.contains(where: { $0.name == movie.name })
+                    return updatedMovie
+                }
             }
             
             DispatchQueue.main.async {
@@ -65,17 +71,5 @@ class SearchViewModel: ObservableObject {
             }
             
         })
-    }
-    
-//    func isFavourite(movie:Movie) -> Bool {
-//        if favoriteMovies.contains(where: { $0.name == movie.name }) {
-//            return true
-//        }
-//        return false
-//    }
-    
-    
-    func loadDislikedMovies() {
-        dislikeMovie = movieStore.fetchDisliked() ?? []
     }
 }
