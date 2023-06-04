@@ -22,6 +22,11 @@ class SearchViewModel: ObservableObject {
     
     @Published var searchText:String
     
+    var displayEmptyResultText:Bool {
+        
+        return searchResults.isEmpty
+    }
+    
     init(movieStore: MovieStore, remoteMovieLoader: RemoteMoviesLoader, favouriteViewModel: FavouriteViewModel, isSearchViewPresented: Bool, isMovieDetailPresented: Bool, searchResults: [Movie], searchText: String) {
         self.movieStore = movieStore
         self.remoteMovieLoader = remoteMovieLoader

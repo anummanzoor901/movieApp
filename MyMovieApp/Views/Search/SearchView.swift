@@ -35,8 +35,7 @@ struct SearchView: View {
                     }
                 }
                 .padding()
-                // TO-DO
-                if searchViewModel.searchResults.isEmpty {
+                if searchViewModel.displayEmptyResultText {
                     Spacer()
                     Text("No results found")
                         .font(.headline)
