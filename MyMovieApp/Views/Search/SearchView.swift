@@ -11,7 +11,7 @@ struct SearchView: View {
     
     @ObservedObject var searchViewModel: SearchViewModel
     @ObservedObject var favouriteViewModel: FavouriteViewModel
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -77,11 +77,6 @@ struct SearchView: View {
                 searchViewModel.searchText = ""
             }
         }
-        
-        .onAppear {
-            searchViewModel.loadDislikedMovies()
-        }
-        
     }
 }
 
