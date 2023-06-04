@@ -13,6 +13,8 @@ class SearchViewModel: ObservableObject {
     var movieStore = MovieStore()
     var remoteMovieLoader = RemoteMoviesLoader()
     
+    var favouriteViewModel:FavouriteViewModel!
+    
     @Published var isSearchViewPresented = false
     @Published var isMovieDetailPresented = false
     
@@ -71,5 +73,9 @@ class SearchViewModel: ObservableObject {
             }
             
         })
+    }
+    
+    func cancelSearch() {
+        favouriteViewModel.isSearchViewPresented = false
     }
 }

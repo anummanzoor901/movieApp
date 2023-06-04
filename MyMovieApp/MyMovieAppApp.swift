@@ -13,7 +13,7 @@ struct MyMovieAppApp: App {
         
     var body: some Scene {
         WindowGroup {
-            FavouriteMovieList()
+            FavouriteMovieList(favouriteViewModel: FavouriteViewModel())
         }
     }
 }

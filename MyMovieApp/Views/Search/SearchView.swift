@@ -9,8 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @ObservedObject var searchViewModel: SearchViewModel
-    @ObservedObject var favouriteViewModel: FavouriteViewModel
+    @ObservedObject var searchViewModel:SearchViewModel
     
     var body: some View {
         NavigationView {
@@ -28,7 +27,7 @@ struct SearchView: View {
                         }
                     
                     Button(action: {
-                        favouriteViewModel.isSearchViewPresented = false
+                        searchViewModel.cancelSearch()
                     }) {
                         Text("Cancel")
                             .foregroundColor(.blue)

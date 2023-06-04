@@ -15,16 +15,7 @@ import SwiftUI
 
 struct FavouriteMovieList: View {
 
-   @ObservedObject var favouriteViewModel = FavouriteViewModel()
-    
-    
-    
-    // creating this object only to pass next view, it's not needed in this view.
-    // We should not dependent on objects which are not needed.
-    // Try to dependent on less objects, only the mandatory ones
-    // SO WILL TRY TO ELEMENATE IT FROM HERE
-    @StateObject private var searchViewModel = SearchViewModel()
-
+    @ObservedObject var favouriteViewModel:FavouriteViewModel
     
     var body: some View {
         NavigationView {
@@ -45,8 +36,10 @@ struct FavouriteMovieList: View {
                                 .frame(width: 19, height: 19)
                                 .padding(.trailing, 16)
                         }
-                        .sheet(isPresented: $favouriteViewModel.isSearchViewPresented) {
-                            SearchView(searchViewModel: searchViewModel, favouriteViewModel: favouriteViewModel)
+                        .sheet(isPresented: $favouriteViewModel.isSearchViewPresented, onDismiss: {
+                            favouriteViewModel.fetchFavouriteMovies()
+                        }) {
+                            SearchView(searchViewModel: getSearchViewModel())
                         }
                     }
                 }
@@ -63,20 +56,27 @@ struct FavouriteMovieList: View {
                         MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding
                     }
                     
+                    
                     .listRowSeparator(.hidden)
                 }
                 .listStyle(PlainListStyle())
+                .onAppear {
+                    favouriteViewModel.fetchFavouriteMovies()
+                }
             }
         }
-        .onAppear {
-            favouriteViewModel.fetchFavouriteMovies()
-        }
+    }
+    
+    func getSearchViewModel() -> SearchViewModel {
+        let searchViewModel = SearchViewModel()
+        searchViewModel.favouriteViewModel = favouriteViewModel // property injection
+        return searchViewModel
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        FavouriteMovieList()
+        FavouriteMovieList(favouriteViewModel: FavouriteViewModel())
     }
 }
 
