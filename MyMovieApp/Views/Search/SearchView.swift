@@ -49,13 +49,8 @@ struct SearchView: View {
                             SearchListItem(movie: movie, disLikeAction: {
                                 searchViewModel.addDislike(movie: movie)
                             }, favouriteAction: {
-                                //TO-DO
-                                if movie.isFavorite == true {
-                                    searchViewModel.removefavoriteMovie(movie: movie)
-                                }
-                                else {
-                                    searchViewModel.addFavourite(movie: movie)
-                                }
+                                searchViewModel.favoriteAction(movie)
+                                
                             })
                             .onTapGesture {
                                 searchViewModel.presentDetailView()

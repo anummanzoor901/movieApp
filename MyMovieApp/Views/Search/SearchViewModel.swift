@@ -93,4 +93,13 @@ class SearchViewModel: ObservableObject {
     func presentDetailView() {
         isMovieDetailPresented = true
     }
+    
+    func favoriteAction(_ movie: Movie) {
+        if movie.isFavorite == true {
+            removefavoriteMovie(movie: movie)
+        }
+        else {
+            addFavourite(movie: movie)
+        }
+    }
 }
