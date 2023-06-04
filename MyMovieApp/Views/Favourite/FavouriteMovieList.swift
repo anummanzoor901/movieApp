@@ -39,7 +39,7 @@ struct FavouriteMovieList: View {
                         .sheet(isPresented: $favouriteViewModel.isSearchViewPresented, onDismiss: {
                             favouriteViewModel.fetchFavouriteMovies()
                         }) {
-                            SearchView(searchViewModel: SearchViewModel(favouriteViewModel: favouriteViewModel))
+                            SearchView(searchViewModel: SearchViewModel(movieStore: MovieStore(), remoteMovieLoader: RemoteMoviesLoader(), favouriteViewModel: favouriteViewModel, isSearchViewPresented: false, isMovieDetailPresented: false, searchResults: [], searchText: ""))
                         }
                     }
                 }

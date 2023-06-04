@@ -10,20 +10,26 @@ import Foundation
 @MainActor
 class SearchViewModel: ObservableObject {
     
-    var movieStore = MovieStore()
-    var remoteMovieLoader = RemoteMoviesLoader()
+    var movieStore:MovieStore
+    var remoteMovieLoader: RemoteMoviesLoader
     
     var favouriteViewModel:FavouriteViewModel
     
-    @Published var isSearchViewPresented = false
-    @Published var isMovieDetailPresented = false
+    @Published var isSearchViewPresented: Bool
+    @Published var isMovieDetailPresented: Bool
     
-    @Published var searchResults: [Movie] = []
+    @Published var searchResults: [Movie]
     
-    @Published var searchText = ""
+    @Published var searchText:String
     
-    init(favouriteViewModel: FavouriteViewModel) {
+    init(movieStore: MovieStore, remoteMovieLoader: RemoteMoviesLoader, favouriteViewModel: FavouriteViewModel, isSearchViewPresented: Bool, isMovieDetailPresented: Bool, searchResults: [Movie], searchText: String) {
+        self.movieStore = movieStore
+        self.remoteMovieLoader = remoteMovieLoader
         self.favouriteViewModel = favouriteViewModel
+        self.isSearchViewPresented = isSearchViewPresented
+        self.isMovieDetailPresented = isMovieDetailPresented
+        self.searchResults = searchResults
+        self.searchText = searchText
     }
     
     
