@@ -71,10 +71,6 @@ struct SearchView: View {
                 }
                 Spacer()
             }
-            .navigationBarTitle("Search")
-            .onDisappear {
-                searchViewModel.searchText = ""
-            }
         }
     }
 }
