@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchView: View {
     
     @ObservedObject var searchViewModel:SearchViewModel
+    @State private var selectedMovie:Movie!
     
     var body: some View {
         NavigationView {
@@ -52,17 +53,19 @@ struct SearchView: View {
                                 
                             })
                             .onTapGesture {
+                                self.selectedMovie = movie
                                 searchViewModel.presentDetailView()
                                 
                             }
-                            .sheet(isPresented: $searchViewModel.isMovieDetailPresented) {
-                                MovieDetailView(content: SearchListItem(movie: movie))
-                            }
+                            
                             .listRowSeparator(.hidden)
                             
                         }
                     }
                     .listStyle(PlainListStyle())
+                    .sheet(isPresented: $searchViewModel.isMovieDetailPresented) {
+                        MovieDetailView(content: SearchListItem(movie: selectedMovie))
+                    }
                 }
                 Spacer()
             }

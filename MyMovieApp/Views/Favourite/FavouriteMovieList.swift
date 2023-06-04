@@ -16,6 +16,7 @@ import SwiftUI
 struct FavouriteMovieList: View {
 
     @ObservedObject var favouriteViewModel:FavouriteViewModel
+    @State private var selectedMovie:Movie!
     
     var body: some View {
         NavigationView {
@@ -50,16 +51,15 @@ struct FavouriteMovieList: View {
                         favouriteViewModel.removeFavourite(movie: movie)
                     }) // Pass favoriteMovies as a binding
                     .onTapGesture {
+                        self.selectedMovie = movie
                         favouriteViewModel.presentDetailView()
                     }
-                    .sheet(isPresented: $favouriteViewModel.isMovieDetailPresented) {
-                        MovieDetailView(content: FavouriteMovieListItem(movie: movie)) // Pass favoriteMovies as a binding
-                    }
-                    
-                    
                     .listRowSeparator(.hidden)
                 }
                 .listStyle(PlainListStyle())
+                .sheet(isPresented: $favouriteViewModel.isMovieDetailPresented) {
+                    MovieDetailView(content: FavouriteMovieListItem(movie: selectedMovie)) // Pass favoriteMovies as a binding
+                }
                 .onAppear {
                     favouriteViewModel.fetchFavouriteMovies()
                 }
